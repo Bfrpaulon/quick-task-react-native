@@ -1,164 +1,172 @@
-// Importa os componentes necessários do React Native e outras bibliotecas
-import React , { useState, useEffect, useRef } from 'react' ;
-import { View , Text , TextInput , TouchableOpacity , FlatList , SafeAreaView } from 'react-native' ;
-import { StatusBar } from 'expo-status-bar' ;
-import { Ionicons } from '@expo/vector-icons' ;
-import tw from 'tailwind-react-native-classnames' ;
-import { Transition , Transitioning } from 'react-native-reanimated' ;
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, FlatList, SafeAreaView } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
+import tw from 'tailwind-react-native-classnames';
+import { Transition, Transitioning } from 'react-native-reanimated';
 
-// Define o componente principal da aplicação
-const App = ( ) => {
+const App = () => {
   // Estado para armazenar o texto da tarefa
-  const [taskText, setTaskText] = useState ( '' );
+  const [taskText, setTaskText] = useState('');
   // Estado para armazenar a lista de tarefas
-  const [taskList, setTaskList] = useState ([]);
+  const [taskList, setTaskList] = useState([]);
   // Estado para armazenar a lista de tarefas filtrada
-  const [filteredTaskList, setFilteredTaskList] = useState ([]);
+  const [filteredTaskList, setFilteredTaskList] = useState([]);
   // Estado para armazenar o filtro selecionado
-  const [selectedFilter, setSelectedFilter] = useState ( 'all' );
+  const [selectedFilter, setSelectedFilter] = useState('all');
   // Referência para o componente de transição
-  const transitionRef = useRef ();
+  const transitionRef = useRef();
 
-  useEffect ( () => {
+  useEffect(() => {
     // Filtra as tarefas sempre que a lista de tarefas ou o filtro selecionado mudar
-    filterTasks (selectedFilter);
+    filterTasks(selectedFilter);
   }, [taskList, selectedFilter]);
 
-  // Função para adicionar uma nova tarefa à lista de tarefas
-  const addTask = ( ) => {
-    if (taskText. trim () !== '' ) {
+  const addTask = () => {
+    if (taskText.trim() !== '') {
       const newTask = {
-        id : Date . now (). toString (),
-        text : taskText,
-        completed : false ,
+        id: Date.now().toString(),
+        text: taskText,
+        completed: false,
       };
 
       // Adiciona a nova tarefa à lista de tarefas
-      setTaskList ( ( prevTaskList ) => [...prevTaskList, newTask]);
+      setTaskList((prevTaskList) => [...prevTaskList, newTask]);
       // Limpa o texto da tarefa
-      setTaskText ( '' );
+      setTaskText('');
     }
   };
 
-  // Função para alterar o estado de completude de uma tarefa com base no ID da tarefa
-  const toggleComplete = ( taskId ) => {
-    setTaskList ( ( prevTaskList ) =>
-      prevTaskList. map ( ( task ) =>
-        task. id === taskId ? { ...task, completed : !task. completed } : task
+  const toggleComplete = (taskId) => {
+    // Altera o estado de completude da tarefa com base no ID da tarefa
+    setTaskList((prevTaskList) =>
+      prevTaskList.map((task) =>
+        task.id === taskId ? { ...task, completed: !task.completed } : task
       )
     );
   };
 
-  // Função para alterar o texto de uma tarefa com base no ID da tarefa
-  const editTask = ( taskId, text ) => {
-    setTaskList ( ( prevTaskList ) =>
-      prevTaskList. map ( ( task ) =>
-        task. id === taskId ? { ...task, text, editing : true } : task
+  const editTask = (taskId, text) => {
+    // Altera o texto da tarefa com base no ID da tarefa
+    setTaskList((prevTaskList) =>
+      prevTaskList.map((task) =>
+        task.id === taskId ? { ...task, text, editing: true } : task
       )
     );
   };
 
-  // Função para salvar a edição de uma tarefa com base no ID da tarefa
-  const saveTask = ( taskId ) => {
-    setTaskList ( ( prevTaskList ) =>
-      prevTaskList. map ( ( task ) =>
-        task. id === taskId ? { ...task, editing : false } : task
+  const saveTask = (taskId) => {
+    // Salva a tarefa editada com base no ID da tarefa
+    setTaskList((prevTaskList) =>
+      prevTaskList.map((task) =>
+        task.id === taskId ? { ...task, editing: false } : task
       )
     );
   };
 
-  // Função para remover uma tarefa com base no ID da tarefa
-  const deleteTask = ( taskId ) => {
-    setTaskList ( ( prevTaskList ) =>
-      prevTaskList. filter ( ( task ) => task. id !== taskId)
+  const deleteTask = (taskId) => {
+    // Remove a tarefa com base no ID da tarefa
+    setTaskList((prevTaskList) =>
+      prevTaskList.filter((task) => task.id !== taskId)
     );
   };
 
-  // Função para filtrar as tarefas com base no filtro selecionado
-  const filterTasks = ( filter ) => {
-    setSelectedFilter (filter);
+  const filterTasks = (filter) => {
+    // Define o filtro selecionado
+    setSelectedFilter(filter);
 
-    if (filter === 'completed' ) {
+    if (filter === 'completed') {
       // Filtra as tarefas concluídas
-      setFilteredTaskList (taskList. filter ( ( task ) => task. completed ));
-    } else if (filter === 'all' ) {
+      setFilteredTaskList(taskList.filter((task) => task.completed));
+    } else if (filter === 'all') {
       // Mostra todas as tarefas
-      setFilteredTaskList (taskList);
+      setFilteredTaskList(taskList);
     } else {
       // Filtra as tarefas não concluídas
-      setFilteredTaskList (taskList. filter ( ( task ) => !task. completed ));
+      setFilteredTaskList(taskList.filter((task) => !task.completed));
     }
   };
 
-  // Função para renderizar cada item da lista de tarefas
-  const renderTask = ( { item } ) => {
+  const renderTask = ({ item }) => {
     return (
-      < Transitioning.View
-        ref = {transitionRef}
-        transition = {transition}
-        style = {tw ` p-4 mb-4 bg-white rounded-lg flex-row justify-between items-center `}
-        key = {item.id}
+      <Transitioning.View
+        ref={transitionRef}
+        transition={transition}
+        style={tw`p-4 mb-4 bg-white rounded-lg flex-row justify-between items-center`}
       >
-        <TouchableOpacity onPress = {() => toggleComplete(item.id)}>
-          <Ionicons name = {item.completed ? 'checkbox-outline' : 'square-outline'} size = {24} color = "black" />
+        <TouchableOpacity onPress={() => toggleComplete(item.id)}>
+          <Ionicons
+            name={item.completed ? 'md-checkbox-outline' : 'md-square-outline'}
+            size={24}
+            color={item.completed ? '#4CAF50' : '#333333'}
+          />
         </TouchableOpacity>
-        <View style = {tw ` flex-1 ml-4 `}>
-          {item.editing ? (
-            <TextInput
-              value = {item.text}
-              onChangeText = {(text) => editTask(item.id, text)}
-              onSubmitEditing = {() => saveTask(item.id)}
-              autoFocus = {true}
-              blurOnSubmit = {false}
-            />
-          ) : (
-            <Text style = {[tw ` text-lg `, item.completed && tw ` line-through `]}>{item.text}</Text>
-          )}
-        </View>
-        <TouchableOpacity onPress = {() => deleteTask(item.id)}>
-          <Ionicons name = "trash-outline" size = {24} color = "black" />
+        <TextInput
+          style={tw`flex-1 ml-2 text-gray-800`}
+          value={item.text}
+          editable={item.editing}
+          onChangeText={(text) => editTask(item.id, text)}
+          onSubmitEditing={() => saveTask(item.id)}
+        />
+        <TouchableOpacity onPress={() => deleteTask(item.id)}>
+          <Ionicons name="md-trash" size={24} color="#FF6B6B" />
         </TouchableOpacity>
       </Transitioning.View>
     );
   };
 
+  const transition = (
+    <Transition.Sequence>
+      <Transition.Out type="fade" durationMs={200} interpolation="easeIn" />
+      <Transition.Change />
+      <Transition.In type="fade" durationMs={200} interpolation="easeOut" />
+    </Transition.Sequence>
+  );
+
   return (
-    <View style = {tw ` flex-1 bg-gray-100 `}>
-      <StatusBar style = "auto" />
-      <SafeAreaView style = {tw ` flex-1 `}>
-        <View style = {tw ` p-4 `}>
-          <Text style = {tw ` text-2xl font-bold text-center text-gray-800 mb-8 `}>To Do List</Text>
-          <View style = {tw ` flex-row items-center mb-4 `}>
-            <TextInput
-              value = {taskText}
-              onChangeText = {(text) => setTaskText(text)}
-              placeholder = "Digite uma nova tarefa"
-              style = {tw ` flex-1 mr-4 p-2 bg-white rounded-lg shadow-md `}
-            />
-            <TouchableOpacity onPress = {addTask}>
-              <Ionicons name = "add-outline" size = {24} color = "black" />
-            </TouchableOpacity>
-          </View>
-          <View style = {tw ` flex-row items-center justify-between `}>
-            <TouchableOpacity onPress = {() => filterTasks('all')}>
-              <Text style = {[tw ` text-lg `, selectedFilter === 'all' && tw ` font-bold text-blue-500 `]}>Todas</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress = {() => filterTasks('active')}>
-              <Text style = {[tw ` text-lg `, selectedFilter === 'active' && tw ` font-bold text-blue-500 `]}>Ativas</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress = {() => filterTasks('completed')}>
-              <Text style = {[tw ` text-lg `, selectedFilter === 'completed' && tw ` font-bold text-blue-500 `]}>Concluídas</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <FlatList
-          data = {filteredTaskList}
-          renderItem = {renderTask}
-          keyExtractor = {(item) => item.id}
-          contentContainerStyle = {[tw ` p-4 `]}
+    <SafeAreaView style={tw`flex-1 bg-gray-100`}>
+      <StatusBar style="auto" />
+      <View style={tw`bg-indigo-500 p-4 flex-row justify-between items-center`}>
+        <Text style={tw`text-white font-bold text-xl`}>Quick Task</Text>
+      </View>
+      <View style={tw`p-4 bg-white`}>
+        <TextInput
+          style={tw`bg-gray-200 py-2 px-4 rounded-full text-gray-800`}
+          placeholder="Add Task..."
+          value={taskText}
+          onChangeText={(text) => setTaskText(text)}
+          onSubmitEditing={addTask}
         />
-      </SafeAreaView>
-    </View>
+        <TouchableOpacity style={tw`absolute right-4 top-2`} onPress={addTask}>
+          <Ionicons name="md-add-circle" size={24} color="#4CAF50" />
+        </TouchableOpacity>
+      </View>
+      <View style={tw`flex-1 p-4`}>
+        <Transitioning.View transition={transition} ref={transitionRef} style={tw`flex-1`}>
+          <FlatList
+            data={filteredTaskList}
+            renderItem={renderTask}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={tw`pb-4`}
+          />
+        </Transitioning.View>
+      </View>
+      <View style={tw`p-4 bg-white border-t border-gray-200 flex-row items-center justify-between`}>
+        <TouchableOpacity onPress={() => filterTasks('completed')}>
+          <Text style={tw`text-gray-800 font-bold`}>Completed</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => filterTasks('all')}>
+          <Text style={tw`text-gray-800 font-bold`}>All</Text>
+        </TouchableOpacity>
+        <View style={tw`flex-row items-center`}>
+          <Ionicons name="md-calendar" size={24} color="#333333" style={tw`mr-2`} />
+          <Text style={tw`text-gray-800`}>Tasks for Today: {taskList.length}</Text>
+        </View>
+        <TouchableOpacity style={tw`bg-red-500 p-2 rounded`} onPress={() => setTaskList([])}>
+          <Text style={tw`text-white font-bold`}>Clear All</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
 
