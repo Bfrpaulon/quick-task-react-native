@@ -1,1 +1,0 @@
-# quick-task-react-native
